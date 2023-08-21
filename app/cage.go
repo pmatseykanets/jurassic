@@ -37,5 +37,3 @@ type Cage struct {
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 }
-
-var CageIDUnspecified = "" // A centinel value to denote any cage ID.

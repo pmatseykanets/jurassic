@@ -94,6 +94,8 @@ func (s *fakeDinosaurStore) Delete(_ context.Context, id string) error {
 
 func TestAddDinosaur(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	id := uuid.NewString()
 	store := &fakeDinosaurStore{}
 
 	svc := &Server{
@@ -101,15 +103,13 @@ func TestAddDinosaur(t *testing.T) {
 		DinosaurStore: store,
 	}
 
-	cageID := uuid.NewString()
 	body := `{"name": "Tyrannosaurus Rex", "species": "tyrannosaurus"}`
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPost, "/cages/"+cageID+"/dinosaurs", strings.NewReader(body))
+	r := httptest.NewRequest(http.MethodPost, "/cages/"+id+"/dinosaurs", strings.NewReader(body))
 
 	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", cageID)
-	// Set the route context.
+	rctx.URLParams.Add("id", id)
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.AddDinosaur().ServeHTTP(w, r)
@@ -139,7 +139,7 @@ func TestAddDinosaur(t *testing.T) {
 	if want, got := app.DinosaurSpeciesTyrannosaurus, response.Data.Species; want != got {
 		t.Fatalf("Expected Species %s got %s", want, got)
 	}
-	if want, got := cageID, response.Data.CageID; want != got {
+	if want, got := id, response.Data.CageID; want != got {
 		t.Fatalf("Expected CageID %s got %s", want, got)
 	}
 	if response.Data.CreatedAt.IsZero() {
@@ -152,9 +152,9 @@ func TestAddDinosaur(t *testing.T) {
 
 func TestGetDinosaur(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	id := uuid.NewString()
 	cageID := uuid.NewString()
-
 	now := time.Now()
 	store := &fakeDinosaurStore{
 		dinosaur: app.Dinosaur{
@@ -174,6 +174,10 @@ func TestGetDinosaur(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/dinosaurs/"+id, nil)
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.GetDinosaur().ServeHTTP(w, r)
 
@@ -238,6 +242,10 @@ func TestListCageDinosaurs(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/cages/"+id+"/dinosaurs", nil)
 
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+
 	svc.ListCageDinosaurs().ServeHTTP(w, r)
 
 	if want, got := http.StatusOK, w.Code; want != got {
@@ -266,9 +274,9 @@ func TestListCageDinosaurs(t *testing.T) {
 
 func TestListAllDinosaurs(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	id := uuid.NewString()
 	cageID := uuid.NewString()
-
 	now := time.Now()
 	store := &fakeDinosaurStore{
 		dinosaur: app.Dinosaur{
@@ -317,10 +325,10 @@ func TestListAllDinosaurs(t *testing.T) {
 
 func TestMoveDinosaur(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	id := uuid.NewString()
 	cage1ID := uuid.NewString()
 	cage2ID := uuid.NewString()
-
 	now := time.Now()
 	store := &fakeDinosaurStore{
 		dinosaur: app.Dinosaur{
@@ -345,7 +353,6 @@ func TestMoveDinosaur(t *testing.T) {
 
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("id", id)
-	// Set the route context.
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.MoveDinosaur().ServeHTTP(w, r)
@@ -366,9 +373,9 @@ func TestMoveDinosaur(t *testing.T) {
 
 func TestDeleteDinosaur(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	id := uuid.NewString()
 	cageID := uuid.NewString()
-
 	now := time.Now()
 	store := &fakeDinosaurStore{
 		dinosaur: app.Dinosaur{
@@ -391,7 +398,6 @@ func TestDeleteDinosaur(t *testing.T) {
 
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add("id", id)
-	// Set the route context.
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.DeleteDinosaur().ServeHTTP(w, r)

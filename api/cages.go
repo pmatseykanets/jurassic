@@ -59,6 +59,11 @@ func (s *Server) GetCage() http.HandlerFunc {
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
 
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		cage, err := s.CageStore.Get(r.Context(), id)
 		if err != nil {
 			if err == app.ErrNotFound {
@@ -161,6 +166,11 @@ func (s *Server) ChangeCageStatus() http.HandlerFunc {
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
 
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		var req UpdateCageRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			logger.Error("Error decoding request body", "error", err)
@@ -210,6 +220,11 @@ func (s *Server) DeleteCage() http.HandlerFunc {
 		requestID := middleware.GetReqID(r.Context())
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
+
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		err := s.CageStore.Delete(r.Context(), id)
 		if err != nil {

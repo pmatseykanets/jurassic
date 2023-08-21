@@ -157,8 +157,9 @@ func TestListCages(t *testing.T) {
 	}
 }
 
-func TestListCageInvalidFilter(t *testing.T) {
+func TestListCagesInvalidFilter(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	store := &fakeCageStore{}
 	svc := &Server{
 		Logger:    logger,
@@ -177,6 +178,7 @@ func TestListCageInvalidFilter(t *testing.T) {
 
 func TestListCagesEmptyListIsRenderedCorrectly(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	svc := &Server{
 		Logger:    logger,
 		CageStore: &fakeCageStore{},
@@ -196,8 +198,9 @@ func TestListCagesEmptyListIsRenderedCorrectly(t *testing.T) {
 	}
 }
 
-func TestListCageInternalError(t *testing.T) {
+func TestListCagesInternalError(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	store := &fakeCageStore{
 		err: errors.New("something went wrong"),
 	}
@@ -210,7 +213,7 @@ func TestListCageInternalError(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/cages", nil)
 
-	svc.GetCage().ServeHTTP(w, r)
+	svc.ListCages().ServeHTTP(w, r)
 
 	if want, got := http.StatusInternalServerError, w.Code; want != got {
 		t.Fatalf("Expected %d got %d", want, got)
@@ -219,6 +222,7 @@ func TestListCageInternalError(t *testing.T) {
 
 func TestAddCage(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	store := &fakeCageStore{}
 
 	svc := &Server{
@@ -332,6 +336,7 @@ func TestAddCageBadRequest(t *testing.T) {
 
 func TestAddCageInternalError(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
 	store := &fakeCageStore{
 		err: errors.New("something went wrong"),
 	}
@@ -356,6 +361,7 @@ func TestAddCageInternalError(t *testing.T) {
 func TestGetCage(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
+	id := uuid.NewString()
 	now := time.Now()
 	store := &fakeCageStore{
 		cage: app.Cage{
@@ -374,7 +380,11 @@ func TestGetCage(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/cages/"+uuid.NewString(), nil)
+	r := httptest.NewRequest(http.MethodGet, "/cages/"+id, nil)
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.GetCage().ServeHTTP(w, r)
 
@@ -416,6 +426,8 @@ func TestGetCage(t *testing.T) {
 
 func TestGetCageNotFoundError(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	id := uuid.NewString()
 	store := &fakeCageStore{
 		err: app.ErrNotFound,
 	}
@@ -426,7 +438,11 @@ func TestGetCageNotFoundError(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/cages/"+uuid.NewString(), nil)
+	r := httptest.NewRequest(http.MethodGet, "/cages/"+id, nil)
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.GetCage().ServeHTTP(w, r)
 
@@ -456,14 +472,13 @@ func TestChangeCageStatus(t *testing.T) {
 		CageStore: store,
 	}
 
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", id)
-
 	body := `{"status": "down"}`
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPut, "/cages/"+id, strings.NewReader(body))
-	// Set the route context.
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.ChangeCageStatus().ServeHTTP(w, r)
@@ -498,6 +513,8 @@ func TestChangeCageStatus(t *testing.T) {
 
 func TestChangeCageStatusNotFoundError(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	id := uuid.NewString()
 	store := &fakeCageStore{
 		err: app.ErrNotFound,
 	}
@@ -510,7 +527,11 @@ func TestChangeCageStatusNotFoundError(t *testing.T) {
 	body := `{"status": "down"}`
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPut, "/cages/"+uuid.NewString(), strings.NewReader(body))
+	r := httptest.NewRequest(http.MethodPut, "/cages/"+id, strings.NewReader(body))
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.ChangeCageStatus().ServeHTTP(w, r)
 
@@ -521,6 +542,8 @@ func TestChangeCageStatusNotFoundError(t *testing.T) {
 
 func TestChangeCageStatusInternalError(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	id := uuid.NewString()
 	store := &fakeCageStore{
 		err: errors.New("something went wrong"),
 	}
@@ -533,7 +556,11 @@ func TestChangeCageStatusInternalError(t *testing.T) {
 	body := `{"status": "down"}`
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPut, "/cages/"+uuid.NewString(), strings.NewReader(body))
+	r := httptest.NewRequest(http.MethodPut, "/cages/"+id, strings.NewReader(body))
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.ChangeCageStatus().ServeHTTP(w, r)
 
@@ -544,6 +571,8 @@ func TestChangeCageStatusInternalError(t *testing.T) {
 
 func TestChangeCageStatusConflict(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	id := uuid.NewString()
 	store := &fakeCageStore{
 		err: app.ErrConflict,
 	}
@@ -556,7 +585,11 @@ func TestChangeCageStatusConflict(t *testing.T) {
 	body := `{"status": "down"}`
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodPut, "/cages/"+uuid.NewString(), strings.NewReader(body))
+	r := httptest.NewRequest(http.MethodPut, "/cages/"+id, strings.NewReader(body))
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.ChangeCageStatus().ServeHTTP(w, r)
 
@@ -567,6 +600,8 @@ func TestChangeCageStatusConflict(t *testing.T) {
 
 func TestChangeCageStatusBadRequest(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	id := uuid.NewString()
 	store := &fakeCageStore{}
 
 	svc := &Server{
@@ -579,6 +614,10 @@ func TestChangeCageStatusBadRequest(t *testing.T) {
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPut, "/cages/"+uuid.NewString(), strings.NewReader(body))
 
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
+	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+
 	svc.ChangeCageStatus().ServeHTTP(w, r)
 
 	if want, got := http.StatusBadRequest, w.Code; want != got {
@@ -588,6 +627,8 @@ func TestChangeCageStatusBadRequest(t *testing.T) {
 
 func TestDeleteCage(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+
+	id := uuid.NewString()
 	store := &fakeCageStore{}
 
 	svc := &Server{
@@ -595,13 +636,11 @@ func TestDeleteCage(t *testing.T) {
 		CageStore: store,
 	}
 
-	id := uuid.NewString()
-	rctx := chi.NewRouteContext()
-	rctx.URLParams.Add("id", id)
-
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodDelete, "/cages/"+id, nil)
-	// Set the route context.
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id)
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
 
 	svc.DeleteCage().ServeHTTP(w, r)

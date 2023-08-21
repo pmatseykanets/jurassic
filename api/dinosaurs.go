@@ -36,6 +36,11 @@ func (s *Server) AddDinosaur() http.HandlerFunc {
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
 
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		var req AddDinosaurRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			logger.Error("Error decoding request body", "error", err)
@@ -91,6 +96,11 @@ func (s *Server) ListCageDinosaurs() http.HandlerFunc {
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
 
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		species := app.DinosaurSpecies(r.URL.Query().Get("species"))
 		if !species.IsUnspecified() {
 			if err := species.Validate(); err != nil {
@@ -143,7 +153,7 @@ func (s *Server) ListAllDinosaurs() http.HandlerFunc {
 			}
 		}
 
-		dinosaurs, err := s.DinosaurStore.List(r.Context(), app.CageIDUnspecified, species)
+		dinosaurs, err := s.DinosaurStore.List(r.Context(), app.IDUnspecified, species)
 		if err != nil {
 			if err == app.ErrNotFound {
 				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -179,6 +189,11 @@ func (s *Server) GetDinosaur() http.HandlerFunc {
 		requestID := middleware.GetReqID(r.Context())
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
+
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		dinosaur, err := s.DinosaurStore.Get(r.Context(), id)
 		if err != nil {
@@ -226,6 +241,11 @@ func (s *Server) MoveDinosaur() http.HandlerFunc {
 		requestID := middleware.GetReqID(r.Context())
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
+
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		var req MoveDinosaurRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -277,6 +297,11 @@ func (s *Server) DeleteDinosaur() http.HandlerFunc {
 		requestID := middleware.GetReqID(r.Context())
 		logger := s.Logger.With("requestId", requestID)
 		id := chi.URLParam(r, "id")
+
+		if err := app.ValidateID(id); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		err := s.DinosaurStore.Delete(r.Context(), id)
 		if err != nil {

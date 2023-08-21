@@ -30,7 +30,7 @@ func TestDinosaurStore(t *testing.T) {
 	}
 
 	// Make sure listing cage dinosaurs comes back empty.
-	list, err := dinosaurStore.List(ctx, app.CageIDUnspecified, app.DinosaurSpeciesUnspecified)
+	list, err := dinosaurStore.List(ctx, app.IDUnspecified, app.DinosaurSpeciesUnspecified)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +124,7 @@ func TestDinosaurStore(t *testing.T) {
 	}
 
 	// List all dinosaurs.
-	list, err = dinosaurStore.List(ctx, app.CageIDUnspecified, app.DinosaurSpeciesUnspecified)
+	list, err = dinosaurStore.List(ctx, app.IDUnspecified, app.DinosaurSpeciesUnspecified)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -165,7 +165,7 @@ func TestDinosaurStore(t *testing.T) {
 	}
 
 	// Make sure we no longer see the deleted dinosaur.
-	list, err = dinosaurStore.List(ctx, app.CageIDUnspecified, app.DinosaurSpeciesUnspecified)
+	list, err = dinosaurStore.List(ctx, app.IDUnspecified, app.DinosaurSpeciesUnspecified)
 	if err != nil {
 		t.Fatal(err)
 	}
