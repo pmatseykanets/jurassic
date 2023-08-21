@@ -130,19 +130,28 @@ func run(logger *slog.Logger, cfg config) error {
 	}
 
 	svc := &api.Server{
-		Addr:      cfg.Addr,
-		Logger:    logger,
-		CageStore: &store.CageStore{DB: db},
+		Addr:          cfg.Addr,
+		Logger:        logger,
+		CageStore:     &store.CageStore{DB: db},
+		DinosaurStore: &store.DinosaurStore{DB: db},
 	}
 
 	rtr := chi.NewRouter()
 	rtr.Use(middlewares...)
 
+	// Cage endpoints.
 	rtr.Get(cfg.BaseURI+"/cages", svc.ListCages())
 	rtr.Post(cfg.BaseURI+"/cages", svc.AddCage())
 	rtr.Get(cfg.BaseURI+"/cages/{id}", svc.GetCage())
 	rtr.Put(cfg.BaseURI+"/cages/{id}", svc.ChangeCageStatus())
 	rtr.Delete(cfg.BaseURI+"/cages/{id}", svc.DeleteCage())
+	// Dinosaur endpoints.
+	rtr.Post(cfg.BaseURI+"/cages/{id}/dinosaurs", svc.AddDinosaur())
+	rtr.Get(cfg.BaseURI+"/cages/{id}/dinosaurs", svc.ListCageDinosaurs())
+	rtr.Get(cfg.BaseURI+"/dinosaurs", svc.ListAllDinosaurs())
+	rtr.Get(cfg.BaseURI+"/dinosaurs/{id}", svc.GetDinosaur())
+	rtr.Put(cfg.BaseURI+"/dinosaurs/{id}", svc.MoveDinosaur())
+	rtr.Delete(cfg.BaseURI+"/dinosaurs/{id}", svc.DeleteDinosaur())
 
 	// Configure HTTP server.
 	// Timeouts can/should be individually fine tuned.
