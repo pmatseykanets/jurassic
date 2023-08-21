@@ -18,6 +18,8 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+
+	"github.com/pmatseykanets/jurassic/api"
 )
 
 var (
@@ -109,7 +111,7 @@ func run(logger *slog.Logger, cfg config) error {
 	middlewares := []func(http.Handler) http.Handler{
 		middleware.RequestID,
 		middleware.RealIP,
-		middleware.Logger,
+		api.Logger(logger),
 		middleware.Recoverer,
 	}
 
