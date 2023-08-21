@@ -5,6 +5,7 @@ package store
 
 import (
 	"database/sql"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -15,6 +16,10 @@ var (
 )
 
 func init() {
+	if s := os.Getenv("DB_CONN_TEST"); s != "" {
+		testDBConnString = s
+	}
+
 	var err error
 	testDB, err = sql.Open("postgres", testDBConnString)
 	if err != nil {
