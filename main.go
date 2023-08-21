@@ -109,7 +109,7 @@ func run(logger *slog.Logger, cfg config) error {
 	}
 
 	middlewares := []func(http.Handler) http.Handler{
-		middleware.RequestID,
+		api.RequestID,
 		middleware.RealIP,
 		api.Logger(logger),
 		middleware.Recoverer,
