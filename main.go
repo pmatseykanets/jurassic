@@ -20,6 +20,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/pmatseykanets/jurassic/api"
+	"github.com/pmatseykanets/jurassic/store"
 )
 
 var (
@@ -128,14 +129,20 @@ func run(logger *slog.Logger, cfg config) error {
 		middlewares = append(middlewares, api.BearerToken(cfg.APIKey))
 	}
 
+	svc := &api.Server{
+		Addr:      cfg.Addr,
+		Logger:    logger,
+		CageStore: &store.CageStore{DB: db},
+	}
+
 	rtr := chi.NewRouter()
 	rtr.Use(middlewares...)
-	if cfg.BaseURI == "" {
-		cfg.BaseURI = "/"
-	}
-	rtr.Get(cfg.BaseURI, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Not implemented"))
-	}))
+
+	rtr.Get(cfg.BaseURI+"/cages", svc.ListCages())
+	rtr.Post(cfg.BaseURI+"/cages", svc.AddCage())
+	rtr.Get(cfg.BaseURI+"/cages/{id}", svc.GetCage())
+	rtr.Put(cfg.BaseURI+"/cages/{id}", svc.ChangeCageStatus())
+	rtr.Delete(cfg.BaseURI+"/cages/{id}", svc.DeleteCage())
 
 	// Configure HTTP server.
 	// Timeouts can/should be individually fine tuned.
