@@ -62,6 +62,12 @@ func main() {
 		os.Exit(0)
 	}
 
+	if cfg.Addr == "" {
+		if s := os.Getenv("JURASSIC_ADDR"); s != "" {
+			cfg.Addr = s
+		}
+	}
+
 	if cfg.DBConnString == "" {
 		if s := os.Getenv("JURASSIC_DB_CONN"); s != "" {
 			cfg.DBConnString = s
