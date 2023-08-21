@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	if s := os.Getenv("DB_CONN_TEST"); s != "" {
+	if s := os.Getenv("JURASSIC_TEST_DB_CONN"); s != "" {
 		testDBConnString = s
 	}
 

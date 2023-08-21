@@ -63,7 +63,7 @@ func main() {
 	}
 
 	if cfg.DBConnString == "" {
-		if s := os.Getenv("DB_CONN"); s != "" {
+		if s := os.Getenv("JURASSIC_DB_CONN"); s != "" {
 			cfg.DBConnString = s
 		} else {
 			logger.Error("DB connection string is required")
@@ -72,13 +72,13 @@ func main() {
 	}
 
 	if cfg.BaseURI == "" {
-		if s := os.Getenv("BASE_URI"); s != "" {
+		if s := os.Getenv("JURASSIC_BASE_URI"); s != "" {
 			cfg.BaseURI = s
 		}
 	}
 
 	if cfg.APIKey == "" {
-		if s := os.Getenv("API_KEY"); s != "" {
+		if s := os.Getenv("JURASSIC_API_KEY"); s != "" {
 			cfg.APIKey = s
 		}
 	}
