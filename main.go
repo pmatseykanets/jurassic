@@ -33,6 +33,7 @@ type config struct {
 	ShutdownTimeout time.Duration
 	DBConnString    string
 	DBMigrations    string
+	APIKey          string
 }
 
 func main() {
@@ -44,6 +45,7 @@ func main() {
 	flag.DurationVar(&cfg.ShutdownTimeout, "shutdown-timeout", 2*time.Second, "Shutdown timeout")
 	flag.StringVar(&cfg.DBConnString, "db-conn", "", "DB connection string")
 	flag.StringVar(&cfg.DBMigrations, "db-migrations", "db/migrations", "DB migrations path")
+	flag.StringVar(&cfg.APIKey, "api-key", "", "API key")
 	var flagVersion, flagBuildVersion bool
 	flag.BoolVar(&flagVersion, "version", false, "Print version")
 	flag.BoolVar(&flagBuildVersion, "build-version", false, "Print build version")
@@ -65,6 +67,12 @@ func main() {
 		} else {
 			logger.Error("DB connection string is required")
 			os.Exit(1)
+		}
+	}
+
+	if cfg.APIKey == "" {
+		if s := os.Getenv("API_KEY"); s != "" {
+			cfg.APIKey = s
 		}
 	}
 
@@ -113,6 +121,11 @@ func run(logger *slog.Logger, cfg config) error {
 		middleware.RealIP,
 		api.Logger(logger),
 		middleware.Recoverer,
+	}
+
+	if cfg.APIKey != "" {
+		logger.Info("Using API key authentication")
+		middlewares = append(middlewares, api.BearerToken(cfg.APIKey))
 	}
 
 	rtr := chi.NewRouter()
