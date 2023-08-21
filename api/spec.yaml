@@ -1,0 +1,469 @@
+openapi: 3.0.3
+info:
+  title: Jurassic Park API
+  version: 1.0.0
+servers:
+  - url: http://localhost:9001
+    description: Local server
+  - url: https://jurassicparkapi.com/api/v1
+    description: Production server
+paths:
+  /cages:
+    get:
+      summary: List cages
+      parameters:
+        - name: status
+          in: query
+          description: Filter cages by status
+          schema:
+            $ref: '#/components/schemas/CageStatus'
+      responses:
+        '200':
+          description: Cages listed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cage'
+                required:
+                  - "data"
+        '400':
+          description: Invalid status
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+    post:
+      summary: Add a new cage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCageRequest'
+      responses:
+        '201':
+          description: Cage added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Cage'
+                required:
+                  - "data"
+        '400':
+          description: Invalid request body
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+  /cages/{id}:
+    get:
+      summary: Get a cage by ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the cage
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cage retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Cage'
+                required:
+                  - "data"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cage not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+    put:
+      summary: Change the status of a cage
+      parameters:
+        - name: id
+          in: path
+          description: ID of the cage
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: New cage status
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeCageStatusRequest'
+      responses:
+        '200':
+          description: Cage status changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Cage'
+                required:
+                  - "data"
+        '400':
+          description: Invalid request body
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cage not found
+        '409':
+          description: Cage can't be powered down while occupied
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete a cage
+      parameters:
+        - name: id
+          in: path
+          description: ID of the cage
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Cage deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cage not found
+        '409':
+          description: Cage can't be deleted while occupied
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+  /cages/{id}/dinosaurs:
+    post:
+      summary: Add a dinosaur to a cage
+      parameters:
+        - name: id
+          in: path
+          description: ID of the cage
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Dinosaur data to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddDinosaurRequest'
+      responses:
+        '201':
+          description: Dinosaur added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Dinosaur'
+                required:
+                  - "data"
+        '400':
+          description: Invalid request body
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cage not found
+        '409':
+          description: Dinosaur can't be added to the cage because its capacity is exceeded, the cage is powered down, or it's occupied by dinosaurs of an incompatible species
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+    get:
+      summary: List dinosaurs in a cage
+      parameters:
+        - name: id
+          in: path
+          description: ID of the cage
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: species
+          in: query
+          description: Filter dinosaurs by species
+          schema:
+            $ref: '#/components/schemas/Species'
+      responses:
+        '200':
+          description: Dinosaurs listed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Dinosaur'
+                required:
+                  - "data"
+        '400':
+          description: Invalid species
+        '401':
+          description: Unauthorized
+        '404':
+          description: Cage not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+  /dinosaurs:
+    get:
+      summary: List dinosaurs
+      parameters:
+        - name: species
+          in: query
+          description: Filter dinosaurs by species
+          schema:
+            $ref: '#/components/schemas/Species'
+      responses:
+        '200':
+          description: Dinosaurs listed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Dinosaur'
+                required:
+                  - "data"
+        '400':
+          description: Invalid species
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+  /dinosaurs/{id}:
+    get:
+      summary: Get a dinosaur by ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the dinosaur
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dinosaur retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Dinosaur'
+                required:
+                  - "data"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Dinosaur not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+    put:
+      summary: Move a dinosaur to a different cage
+      parameters:
+        - name: id
+          in: path
+          description: ID of the dinosaur
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: ID of the target cage
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveDinosaurRequest'
+      responses:
+        '200':
+          description: Dinosaur moved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    $ref: '#/components/schemas/Dinosaur'
+                required:
+                  - "data"
+        '400':
+          description: Invalid request body
+        '401':
+          description: Unauthorized
+        '404':
+          description: Dinosaur or cage not found
+        '409':
+          description: Dinosaur can't be moved to the cage because its capacity is exceeded, the cage is powered down, or it's occupied by dinosaurs of an incompatible species
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete a dinosaur
+      parameters:
+        - name: id
+          in: path
+          description: ID of the dinosaur
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Dinosaur deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Dinosaur not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    CageStatus:
+      type: string
+      enum: [active, down]
+    Species:
+      type: string
+      enum: [tyrannosaurus, velociraptor, spinosaurus, megalosaurus, brachiosaurus, stegosaurus, ankylosaurus, triceratops]
+    AddCageRequest:
+      type: object
+      properties:
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        status:
+          $ref: '#/components/schemas/CageStatus'
+      required:
+        - "capacity"
+        - "status"
+    ChangeCageStatusRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/CageStatus'
+      required:
+        - "status"
+    AddDinosaurRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 256
+        species:
+          $ref: '#/components/schemas/Species'
+        cageId:
+          type: string
+          format: uuid
+      required:
+        - "name"
+        - "species"
+        - "cageId"
+    MoveDinosaurRequest:
+      type: object
+      properties:
+        cageId:
+          type: string
+          format: uuid
+      required:
+        - "cageId"
+    Cage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 100
+        status:
+          $ref: '#/components/schemas/CageStatus'
+        occupancy:
+          type: integer
+          minimum: 0
+          maximum: 100
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Dinosaur:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        species:
+          $ref: '#/components/schemas/Species'
+        cageId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
