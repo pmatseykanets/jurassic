@@ -37,6 +37,8 @@ type config struct {
 	APIKey          string
 }
 
+const jsonContentType = "application/json"
+
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
@@ -153,16 +155,20 @@ func run(logger *slog.Logger, cfg config) error {
 
 	// Cage endpoints.
 	rtr.Get(cfg.BaseURI+"/cages", svc.ListCages())
-	rtr.Post(cfg.BaseURI+"/cages", svc.AddCage())
+	rtr.With(middleware.AllowContentType(jsonContentType)).
+		Post(cfg.BaseURI+"/cages", svc.AddCage())
 	rtr.Get(cfg.BaseURI+"/cages/{id}", svc.GetCage())
-	rtr.Put(cfg.BaseURI+"/cages/{id}", svc.ChangeCageStatus())
+	rtr.With(middleware.AllowContentType(jsonContentType)).
+		Put(cfg.BaseURI+"/cages/{id}", svc.ChangeCageStatus())
 	rtr.Delete(cfg.BaseURI+"/cages/{id}", svc.DeleteCage())
 	// Dinosaur endpoints.
-	rtr.Post(cfg.BaseURI+"/cages/{id}/dinosaurs", svc.AddDinosaur())
+	rtr.With(middleware.AllowContentType(jsonContentType)).
+		Post(cfg.BaseURI+"/cages/{id}/dinosaurs", svc.AddDinosaur())
 	rtr.Get(cfg.BaseURI+"/cages/{id}/dinosaurs", svc.ListCageDinosaurs())
 	rtr.Get(cfg.BaseURI+"/dinosaurs", svc.ListAllDinosaurs())
 	rtr.Get(cfg.BaseURI+"/dinosaurs/{id}", svc.GetDinosaur())
-	rtr.Put(cfg.BaseURI+"/dinosaurs/{id}", svc.MoveDinosaur())
+	rtr.With(middleware.AllowContentType(jsonContentType)).
+		Put(cfg.BaseURI+"/dinosaurs/{id}", svc.MoveDinosaur())
 	rtr.Delete(cfg.BaseURI+"/dinosaurs/{id}", svc.DeleteDinosaur())
 
 	// Configure HTTP server.
