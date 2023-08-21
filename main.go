@@ -71,6 +71,12 @@ func main() {
 		}
 	}
 
+	if cfg.BaseURI == "" {
+		if s := os.Getenv("BASE_URI"); s != "" {
+			cfg.BaseURI = s
+		}
+	}
+
 	if cfg.APIKey == "" {
 		if s := os.Getenv("API_KEY"); s != "" {
 			cfg.APIKey = s
