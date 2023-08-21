@@ -73,7 +73,6 @@ func main() {
 }
 
 func run(logger *slog.Logger, cfg config) error {
-	logger.Info("DB connection string", "conn", cfg.DBConnString)
 	// Run DB migrations.
 	logger.Info("Running DB migrations")
 	migrations, err := migrate.New("file://"+cfg.DBMigrations, cfg.DBConnString)
