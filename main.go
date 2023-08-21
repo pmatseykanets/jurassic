@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -13,6 +14,10 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
 )
 
 var (
@@ -24,6 +29,8 @@ type config struct {
 	Addr            string
 	BaseURI         string
 	ShutdownTimeout time.Duration
+	DBConnString    string
+	DBMigrations    string
 }
 
 func main() {
@@ -33,6 +40,8 @@ func main() {
 	flag.StringVar(&cfg.Addr, "addr", ":9001", "Address to listen on")
 	flag.StringVar(&cfg.BaseURI, "base-uri", "", "Base URI")
 	flag.DurationVar(&cfg.ShutdownTimeout, "shutdown-timeout", 2*time.Second, "Shutdown timeout")
+	flag.StringVar(&cfg.DBConnString, "db-conn", "", "DB connection string")
+	flag.StringVar(&cfg.DBMigrations, "db-migrations", "db/migrations", "DB migrations path")
 	var flagVersion, flagBuildVersion bool
 	flag.BoolVar(&flagVersion, "version", false, "Print version")
 	flag.BoolVar(&flagBuildVersion, "build-version", false, "Print build version")
@@ -48,6 +57,15 @@ func main() {
 		os.Exit(0)
 	}
 
+	if cfg.DBConnString == "" {
+		if s := os.Getenv("DB_CONN"); s != "" {
+			cfg.DBConnString = s
+		} else {
+			logger.Error("DB connection string is required")
+			os.Exit(1)
+		}
+	}
+
 	if err := run(logger, cfg); err != nil {
 		logger.Error("Error", "error", err)
 		os.Exit(1)
@@ -55,6 +73,40 @@ func main() {
 }
 
 func run(logger *slog.Logger, cfg config) error {
+	logger.Info("DB connection string", "conn", cfg.DBConnString)
+	// Run DB migrations.
+	logger.Info("Running DB migrations")
+	migrations, err := migrate.New("file://"+cfg.DBMigrations, cfg.DBConnString)
+	if err != nil {
+		return fmt.Errorf("Failed to initialize DB migrations: %w", err)
+	}
+
+	err = migrations.Up()
+	switch err {
+	case nil:
+	case migrate.ErrNoChange:
+		logger.Info("No DB schema changes")
+	default:
+		return fmt.Errorf("Failed to run DB migrations: %w", err)
+	}
+
+	// Initialize a DB connection pool.
+	logger.Info("Initializing DB connection pool")
+	db, err := sql.Open("postgres", cfg.DBConnString)
+	if err != nil {
+		return fmt.Errorf("Failed to open DB connection: %w", err)
+	}
+	defer db.Close()
+
+	// Check DB connection.
+	// TODO: Add retry logic with exponential backoff.
+	pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err = db.PingContext(pingCtx); err != nil {
+		return fmt.Errorf("Failed to ping DB: %w", err)
+	}
+
 	middlewares := []func(http.Handler) http.Handler{
 		middleware.RequestID,
 		middleware.RealIP,
