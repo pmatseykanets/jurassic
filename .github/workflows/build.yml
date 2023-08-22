@@ -1,0 +1,60 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  VERSION: v1.0.${{ github.run_number }}${{ fromJSON('["-dev", ""]')[github.ref == 'refs/heads/master'] }}
+
+jobs:
+  build:
+    name: "Build ${{ matrix.go }}"
+    strategy:
+      matrix:
+        go: ["1.21"]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.go }}
+
+    - name: Go version
+      run: go version
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Vet
+      run: go vet ./...
+
+    - name: Test
+      run: go test -vet=off -race -coverprofile=coverage.txt -covermode=atomic --tags=unit ./...
+
+    - name: Build binaries
+      run: CGO_ENABLED=0 go build -o jurassic -ldflags "-s -w -X 'main.buildVersion=# Built $(date -u -R) with $(go version) at $(git rev-parse HEAD)' -X 'main.version=${{ env.VERSION }}'"
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: pmatseykanets
+        password: ${{ secrets.GH_TOKEN }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ghcr.io/${{ github.repository }}:${{ env.VERSION }}
+
+    - uses: rickstaa/action-create-tag@v1
+      if: github.ref == 'refs/heads/master'
+      with:
+        tag: ${{ env.VERSION }}
+        tag_exists_error: true
+        message: "${{ env.VERSION }}"
+        github_token: ${{ secrets.GH_TOKEN }}

@@ -19,6 +19,7 @@ services:
         condition: service_healthy
     build:
       context: .
+      dockerfile: Dockerfile.compose
     ports:
       - "9001:9001"
     environment:
