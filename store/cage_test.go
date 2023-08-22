@@ -13,12 +13,13 @@ import (
 )
 
 func TestCageStore(t *testing.T) {
-	ctx := context.Background()
-	store := CageStore{DB: testDB}
-
+	setUpTestDB(t)
 	t.Cleanup(func() {
 		testDB.Exec("TRUNCATE TABLE cages CASCADE")
 	})
+
+	ctx := context.Background()
+	store := CageStore{DB: testDB}
 
 	list, err := store.List(ctx, app.CageStatusUnspecified)
 	if err != nil {

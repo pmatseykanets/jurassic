@@ -12,13 +12,14 @@ import (
 )
 
 func TestDinosaurStore(t *testing.T) {
-	ctx := context.Background()
-	cageStore := CageStore{DB: testDB}
-	dinosaurStore := DinosaurStore{DB: testDB}
-
+	setUpTestDB(t)
 	t.Cleanup(func() {
 		testDB.Exec("TRUNCATE TABLE cages CASCADE")
 	})
+
+	ctx := context.Background()
+	cageStore := CageStore{DB: testDB}
+	dinosaurStore := DinosaurStore{DB: testDB}
 
 	// Add an active (powered) cage.
 	cage1, err := cageStore.Add(ctx, &app.Cage{

@@ -6,7 +6,11 @@ package store
 import (
 	"database/sql"
 	"os"
+	"testing"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 )
 
@@ -15,14 +19,27 @@ var (
 	testDB           *sql.DB
 )
 
-func init() {
+func setUpTestDB(t *testing.T) {
+	if testDB != nil {
+		return
+	}
+
 	if s := os.Getenv("JURASSIC_TEST_DB_CONN"); s != "" {
 		testDBConnString = s
 	}
 
-	var err error
+	migrations, err := migrate.New("file://../db/migrations", testDBConnString)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = migrations.Up()
+	if err != nil && err != migrate.ErrNoChange {
+		t.Fatal(err)
+	}
+
 	testDB, err = sql.Open("postgres", testDBConnString)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 }
