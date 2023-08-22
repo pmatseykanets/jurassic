@@ -1,0 +1,414 @@
+{
+	"info": {
+		"_postman_id": "a315e3ec-e869-4228-99a0-180d7f2a7164",
+		"name": "Jurassic Park",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29148394"
+	},
+	"item": [
+		{
+			"name": "Cages",
+			"item": [
+				{
+					"name": "Add an active cage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"capacity\": 2,\n    \"status\": \"active\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/cages",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a powered down cage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"capacity\": 2,\n    \"status\": \"down\"\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:9001/cages",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all cages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/cages",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List active cages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/cages?status=active",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List powered down cages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/cages?status=down",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "down"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a cage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/cages",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a cage",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/cages/40c153c4-3c4b-11ee-97f2-63ceb01950b3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages",
+								"40c153c4-3c4b-11ee-97f2-63ceb01950b3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Power up a cage",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"active\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/cages/40c153c4-3c4b-11ee-97f2-63ceb01950b3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages",
+								"40c153c4-3c4b-11ee-97f2-63ceb01950b3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Power down a cage",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"down\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9001/cages/40c153c4-3c4b-11ee-97f2-63ceb01950b3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages",
+								"40c153c4-3c4b-11ee-97f2-63ceb01950b3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dinosaurs",
+			"item": [
+				{
+					"name": "Add a dinosaur to a cage",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.get(\"id\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dinosaur1\",\n    \"species\": \"tyrannosaurus\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/cages/c1c94460-3c44-11ee-8cf6-8f94e8a15f8b/dinosaurs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages",
+								"c1c94460-3c44-11ee-8cf6-8f94e8a15f8b",
+								"dinosaurs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all dinosaurs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/dinosaurs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"dinosaurs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all dinosaurs in a cage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/cages/c1c94460-3c44-11ee-8cf6-8f94e8a15f8b/dinosaurs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages",
+								"c1c94460-3c44-11ee-8cf6-8f94e8a15f8b",
+								"dinosaurs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all dinosaurs in a cage by species",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/cages/c1c94460-3c44-11ee-8cf6-8f94e8a15f8b/dinosaurs?species=tyrannosaurus",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"cages",
+								"c1c94460-3c44-11ee-8cf6-8f94e8a15f8b",
+								"dinosaurs"
+							],
+							"query": [
+								{
+									"key": "species",
+									"value": "tyrannosaurus"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a dinosaur",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/dinosaurs/42434d98-3c68-11ee-a936-5f4976984aba",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"dinosaurs",
+								"42434d98-3c68-11ee-a936-5f4976984aba"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Move dinosaur to a different cage",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.get(\"id\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cageId\": \"87c3259a-3c7d-11ee-9cc1-83770489b9c4\"\n}\n"
+						},
+						"url": {
+							"raw": "http://localhost:9001/dinosaurs/42434d98-3c68-11ee-a936-5f4976984aba",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9001",
+							"path": [
+								"dinosaurs",
+								"42434d98-3c68-11ee-a936-5f4976984aba"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
