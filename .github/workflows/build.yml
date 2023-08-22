@@ -4,7 +4,19 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+        - '.gitingore'
+        - 'api/spec.yaml'
+        - 'Makefile'
+        - 'README.md'
+        - 'postman_collection.json'
   pull_request:
+    paths-ignore:
+        - '.gitingore'
+        - 'api/spec.yaml'
+        - 'Makefile'
+        - 'README.md'
+        - 'postman_collection.json'
 
 env:
   VERSION: v1.0.${{ github.run_number }}${{ fromJSON('["-dev", ""]')[github.ref == 'refs/heads/master'] }}
