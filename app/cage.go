@@ -29,6 +29,7 @@ func (s CageStatus) IsUnspecified() bool {
 	return s == CageStatusUnspecified
 }
 
+// Cage represents a cage.
 type Cage struct {
 	ID        string     `json:"id"`
 	Status    CageStatus `json:"status"`

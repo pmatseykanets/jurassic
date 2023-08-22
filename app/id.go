@@ -6,10 +6,12 @@ import (
 	"github.com/google/uuid"
 )
 
-var IDUnspecified = "" // A centinel value to denote any ID.
+// IDUnspecified ia a centinel value to denote any ID.
+var IDUnspecified = ""
 
 const idLength = 36 // We only accept IDs in the form xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
 
+// ValidateID validates the ID.
 func ValidateID(id string) error {
 	invalidErr := errors.New("invalid ID")
 

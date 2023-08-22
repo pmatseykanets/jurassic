@@ -7,6 +7,7 @@ import (
 	"github.com/pmatseykanets/jurassic/app"
 )
 
+// CageStore defines the interface for the Cage store.
 type CageStore interface {
 	Add(ctx context.Context, cage *app.Cage) (*app.Cage, error)
 	Get(ctx context.Context, id string) (*app.Cage, error)
@@ -15,6 +16,7 @@ type CageStore interface {
 	Delete(ctx context.Context, id string) error
 }
 
+// DinosaurStore defines the interface for the Dinosaur store.
 type DinosaurStore interface {
 	Add(ctx context.Context, dinosaur *app.Dinosaur) (*app.Dinosaur, error)
 	List(ctx context.Context, cageID string, species app.DinosaurSpecies) ([]app.Dinosaur, error)
@@ -23,6 +25,7 @@ type DinosaurStore interface {
 	Delete(ctx context.Context, id string) error
 }
 
+// Server defines the API server.
 type Server struct {
 	Addr          string
 	Logger        *slog.Logger

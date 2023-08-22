@@ -174,6 +174,7 @@ func (s *DinosaurStore) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+// getDinosaur gets a dinosaur by id.
 func getDinosaur(ctx context.Context, q queryable, id string) (*app.Dinosaur, error) {
 	var dinosaur app.Dinosaur
 	query := `

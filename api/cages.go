@@ -91,11 +91,13 @@ func (s *Server) GetCage() http.HandlerFunc {
 	}
 }
 
+// AddCageRequest is a request to add a new cage.
 type AddCageRequest struct {
 	Capacity int            `json:"capacity"`
 	Status   app.CageStatus `json:"status"`
 }
 
+// Validate validates the request.
 func (r AddCageRequest) Validate() error {
 	if r.Capacity <= 0 {
 		return errors.New("invalid capacity")
@@ -150,10 +152,12 @@ func (s *Server) AddCage() http.HandlerFunc {
 	}
 }
 
+// UpdateCageRequest is a request to update a cage.
 type UpdateCageRequest struct {
 	Status app.CageStatus `json:"status"`
 }
 
+// Validate validates the request.
 func (r UpdateCageRequest) Validate() error {
 	return r.Status.Validate()
 }

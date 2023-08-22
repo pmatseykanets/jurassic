@@ -5,8 +5,10 @@ import (
 	"time"
 )
 
+// DinosaurSpecies represents a dinosaur species.
 type DinosaurSpecies string
 
+// List of all supported dinosaur species.
 const (
 	DinosaurSpeciesUnspecified   DinosaurSpecies = ""
 	DinosaurSpeciesTyrannosaurus DinosaurSpecies = "tyrannosaurus"
@@ -19,13 +21,16 @@ const (
 	DinosaurSpeciesTriceratops   DinosaurSpecies = "triceratops"
 )
 
+// DinosaurType represents a dinosaur type.
 type DinosaurType string
 
+// List of all supported dinosaur types.
 const (
 	DinosaurTypeCarnivore DinosaurType = "carnivore"
 	DinosaurTypeHerbivore DinosaurType = "herbivore"
 )
 
+// Validate the dinosaur species value.
 func (s DinosaurSpecies) Validate() error {
 	switch s {
 	case DinosaurSpeciesTyrannosaurus,
@@ -42,10 +47,12 @@ func (s DinosaurSpecies) Validate() error {
 	}
 }
 
+// IsUnspecified returns true if the dinosaur species value is empty.
 func (s DinosaurSpecies) IsUnspecified() bool {
 	return s == DinosaurSpeciesUnspecified
 }
 
+// Type returns the dinosaur type.
 func (s DinosaurSpecies) Type() DinosaurType {
 	switch s {
 	case DinosaurSpeciesTyrannosaurus,
@@ -63,6 +70,7 @@ func (s DinosaurSpecies) Type() DinosaurType {
 	}
 }
 
+// Dinosaur represents a dinosaur.
 type Dinosaur struct {
 	ID        string          `json:"id"`
 	Name      string          `json:"name"`

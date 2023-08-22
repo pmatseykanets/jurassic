@@ -7,7 +7,7 @@ import (
 	"github.com/pmatseykanets/jurassic/app"
 )
 
-// CageStore is a DB implementation of api.CageStore store.
+// CageStore is a DB implementation of api.CageStore.
 type CageStore struct {
 	DB *sql.DB
 }
@@ -164,6 +164,7 @@ func (s *CageStore) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+// getCage returns a cage by id including its occupancy.
 func getCage(ctx context.Context, q queryable, id string) (*app.Cage, error) {
 	var cage app.Cage
 	query := `

@@ -11,11 +11,13 @@ import (
 	"github.com/pmatseykanets/jurassic/app"
 )
 
+// AddDinosaurRequest is a request to add a dinosaur.
 type AddDinosaurRequest struct {
 	Name    string              `json:"name"`
 	Species app.DinosaurSpecies `json:"species"`
 }
 
+// Validate validates the request.
 func (r AddDinosaurRequest) Validate() error {
 	if r.Name == "" {
 		return errors.New("name is required")
@@ -222,10 +224,12 @@ func (s *Server) GetDinosaur() http.HandlerFunc {
 	}
 }
 
+// MoveDinosaurRequest is a request to move a dinosaur to a different cage.
 type MoveDinosaurRequest struct {
 	CageID string `json:"cageId"`
 }
 
+// Validate validates the request.
 func (r *MoveDinosaurRequest) Validate() error {
 	if r.CageID == "" {
 		return errors.New("cageId is required")
@@ -263,7 +267,8 @@ func (s *Server) MoveDinosaur() http.HandlerFunc {
 		if err != nil {
 			switch err {
 			case app.ErrNotFound:
-				// TODO: Disambiguate between a dinosaur or a cage being not found.
+				// NOTE: This can be improved by differentiating between
+				// a dinosaur or a cage being not found.
 				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			case app.ErrCagePoweredDown, app.ErrCapacityExceeded, app.ErrSpeciesMismatch:
 				http.Error(w, err.Error(), http.StatusConflict)
