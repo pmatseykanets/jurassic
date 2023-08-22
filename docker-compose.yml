@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=jurassic
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=jurassic
+    healthcheck:
+      test: "pg_isready -U jurassic"
+      interval: 1s
+      timeout: 5s
+      retries: 5
+  jurassic:
+    depends_on:
+      db:
+        condition: service_healthy
+    build:
+      context: .
+    ports:
+      - "9001:9001"
+    environment:
+      - JURASSIC_DB_CONN=postgres://jurassic:secret@db:5432/jurassic?sslmode=disable
