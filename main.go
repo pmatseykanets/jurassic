@@ -122,15 +122,6 @@ func run(logger *slog.Logger, cfg config) error {
 	}
 	defer db.Close()
 
-	// Check DB connection.
-	// TODO: Add retry logic with exponential backoff.
-	pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	if err = db.PingContext(pingCtx); err != nil {
-		return fmt.Errorf("Failed to ping DB: %w", err)
-	}
-
 	middlewares := []func(http.Handler) http.Handler{
 		api.RequestID,
 		middleware.RealIP,
